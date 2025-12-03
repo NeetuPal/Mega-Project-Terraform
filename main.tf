@@ -105,6 +105,32 @@ resource "aws_eks_addon" "ebs_csi_driver" {
   resolve_conflicts_on_update = "OVERWRITE"
 }
 */
+-------
+resource "aws_iam_role" "ebs_csi_driver" {
+  name = "AmazonEKS_EBS_CSI_DriverRole"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "eks.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "ebs_csi_driver_policy" {
+  role       = aws_iam_role.ebs_csi_driver.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
+}
+
+----------
 resource "aws_eks_addon" "ebs_csi_driver" {
   cluster_name             = aws_eks_cluster.devopsshack.name
   addon_name               = "aws-ebs-csi-driver"
